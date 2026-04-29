@@ -1,6 +1,22 @@
 name: IAM Security Compliance Audit
 
 on: 
+    workflow_dispatch: 
+        inputs: 
+            days_threshold:
+                description: 'Age threshold for stale keys (days)'
+                required: true
+                default: '90'
+                type: string
+            log_level:
+                description: 'Logging level'
+                required: true
+                default: 'INFO'
+                type: choice
+                options:
+                    - INFO
+                    - WARNING
+                    - DEBUG
     push:
         branches: [ main ]
     schedule:
@@ -21,7 +37,9 @@ jobs:
 
             - name: Run IAM Audit Script
               run: |
-                python iam_security.py -f iam_report.csv -d 90
+                # We use the inputs defined in workflow_dispatch
+                # If it's a push/schedule event, it uses the 'default' values
+                python iam_security.py -f iam_report.csv -d ${{ github.event.inputs.days_threshold || 90 }}
 
             - name: Upload Compliance Report
               uses: actions/upload-artifact@v4
