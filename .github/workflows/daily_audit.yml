@@ -1,0 +1,32 @@
+name: IAM Security Compliance Audit
+
+on: 
+    push:
+        branches: [ main ]
+    schedule:
+        - cron : '0 0 * * *'
+    
+jobs: 
+    audit-and-report:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout Code
+              uses: actions/checkout@v4
+
+            - name: Set up Python
+              uses : actions/setup-python@v4
+              with: 
+                python-version: '3.10'
+
+            - name: Run IAM Audit Script
+              run: |
+                python iam_security.py -f iam_report.csv -d 90
+
+            - name: Upload Compliance Report
+              uses: actions/upload-artifact@v4
+              with:
+                name: security-reports
+                path: |
+                    iam_security_compliance_report*.txt
+                    iam_audit_*.json
