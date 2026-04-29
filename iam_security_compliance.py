@@ -17,6 +17,7 @@ timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M")
 REPORT = f"iam_security_compliance_report{timestamp}.txt"
 
 def argument_parser():
+    """Dynamically parses 'report file' and 'threshold days' for key rotation"""
     parser = argparse.ArgumentParser("Dinamically checks for old access keys and users without MFA enabled")
     parser.add_argument("-f", "--file", help="Path to the CSV file", required=True)
     parser.add_argument("-d", "--days", help="Number of days to consider a key as 'old'", required=False, default=90, type=int)
@@ -34,7 +35,8 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-def check_iam_compliance(file, days):
+def check_iam_compliance(file: str, days: int) -> None:
+    """Checks IAM compliance based on MFA status and access key age"""
     # Initialize consistently
     old_keys = { "data": [], "count": 0 }
     no_mfa = { "users": [], "count": 0 }
