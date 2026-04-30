@@ -1,5 +1,7 @@
 # Cloud IAM Security Auditor
 
+![IAM Audit Status](https://github.com/CyberBass051/iam-audit-tool/actions/workflows/daily_audit.yml/badge.svg)
+
 ## 1. Objective
 
 A Python-based utility that automates the principle of Least Privilege by auditing AWS/Azure IAM reports for MFA compliance and key rotation.
@@ -118,7 +120,7 @@ GitHub Actions look for YAML files in a specific hidden folder: `.github/workflo
         push:
             branches: [ main ]
         schedule:
-            - cron : '0 0 * * *'
+            - cron: '0 0 * * *'
     
     jobs: 
         audit-and-report:
@@ -129,7 +131,7 @@ GitHub Actions look for YAML files in a specific hidden folder: `.github/workflo
                 uses: actions/checkout@v4
 
                 - name: Set up Python
-                  uses : actions/setup-python@v4
+                  uses: actions/setup-python@v4
                   with: 
                     python-version: '3.10'
 
@@ -137,7 +139,7 @@ GitHub Actions look for YAML files in a specific hidden folder: `.github/workflo
                   run: |
                     # We use the inputs defined in workflow_dispatch
                     # If it's a push/schedule event, it uses the 'default' values
-                    python iam_security.py -f iam_report.csv -d ${{ github.event.inputs.days_threshold || 90 }}
+                    python iam_security_compliance.py -f iam_report.csv -d ${{ github.event.inputs.days_threshold || 90 }}
 
                 - name: Upload Compliance Report
                   uses: actions/upload-artifact@v4
@@ -148,7 +150,7 @@ GitHub Actions look for YAML files in a specific hidden folder: `.github/workflo
                       iam_audit_*.json
 
                 - name: Generate Job Summary
-                  run : |
+                  run: |
                     echo "## 🛡️ IAM Audit Results" >> $GITHUB_STEP_SUMMARY
                     echo "Audit performed on: $(date)" >> $GITHUB_STEP_SUMMARY
                     echo "---" >> $GITHUB_STEP_SUMMARY
