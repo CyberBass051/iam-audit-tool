@@ -95,6 +95,68 @@ GitHub Actions look for YAML files in a specific hidden folder: `.github/workflo
     
 2. **Create the workflow file:** `touch .github/workflows/daily_audit.yml`
 
+```yaml
+    name: IAM Security Compliance Audit
+
+    on: 
+        workflow_dispatch: 
+            inputs: 
+                days_threshold:
+                    description: 'Age threshold for stale keys (days)'
+                    required: true
+                    default: '90'
+                    type: string
+                log_level:
+                    description: 'Logging level'
+                    required: true
+                    default: 'INFO'
+                    type: choice
+                    options:
+                        - INFO
+                        - WARNING
+                        - DEBUG
+        push:
+            branches: [ main ]
+        schedule:
+            - cron : '0 0 * * *'
+    
+    jobs: 
+        audit-and-report:
+            runs-on: ubuntu-latest
+
+            steps:
+                - name: Checkout Code
+                uses: actions/checkout@v4
+
+                - name: Set up Python
+                  uses : actions/setup-python@v4
+                  with: 
+                    python-version: '3.10'
+
+                - name: Run IAM Audit Script
+                  run: |
+                    # We use the inputs defined in workflow_dispatch
+                    # If it's a push/schedule event, it uses the 'default' values
+                    python iam_security.py -f iam_report.csv -d ${{ github.event.inputs.days_threshold || 90 }}
+
+                - name: Upload Compliance Report
+                  uses: actions/upload-artifact@v4
+                  with:
+                    name: security-reports
+                    path: |
+                      iam_security_compliance_report*.txt
+                      iam_audit_*.json
+
+                - name: Generate Job Summary
+                  run : |
+                    echo "## 🛡️ IAM Audit Results" >> $GITHUB_STEP_SUMMARY
+                    echo "Audit performed on: $(date)" >> $GITHUB_STEP_SUMMARY
+                    echo "---" >> $GITHUB_STEP_SUMMARY
+                    echo "Detailed findings are available in the Artifacts section below." >> $GITHUB_STEP_SUMMARY
+
+
+```
+
 #### Step 3.4: Write the Workflow Logic
 
 Open `daily_audit.yml` and paste this configuration. This tells GitHub to run your Python script every time you push code, or on a schedule.
