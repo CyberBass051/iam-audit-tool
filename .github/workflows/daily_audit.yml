@@ -48,3 +48,10 @@ jobs:
                 path: |
                     iam_security_compliance_report*.txt
                     iam_audit_*.json
+
+            - name: Generate Job Summary
+              run : |
+                echo "## 🛡️ IAM Audit Results" >> $GITHUB_STEP_SUMMARY
+                echo "Audit performed on: $(date)" >> $GITHUB_STEP_SUMMARY
+                echo "---" >> $GITHUB_STEP_SUMMARY
+                echo "Detailed findings are available in the Artifacts section below." >> $GITHUB_STEP_SUMMARY
